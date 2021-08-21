@@ -58,7 +58,7 @@ end
 --- @param term Terminal
 function M.set_options(win, buf, term)
   if term:is_split() then
-    if term.direction == "horizontal" then
+    if term:get_direction() == "horizontal" then
       vim.wo[win].winfixheight = true
     else
       vim.wo[win].winfixwidth = true
@@ -241,7 +241,8 @@ end
 --- @param term Terminal
 function M.open_split(size, term)
   local has_open, win_ids = M.find_open_windows()
-  local commands = split_commands[term.direction]
+  local direction = term:get_direction()
+  local commands = split_commands[direction]
   local persist_size = require("toggleterm.config").get("persist_size")
 
   if has_open then
@@ -249,7 +250,7 @@ function M.open_split(size, term)
     -- in order to split it
     local split_win = win_ids[#win_ids]
     if persist_size then
-      M.save_window_size(term.direction, split_win)
+      M.save_window_size(direction, split_win)
     end
     api.nvim_set_current_win(split_win)
     vim.cmd(commands.existing)
@@ -277,7 +278,7 @@ local function close_split(term)
   if api.nvim_win_is_valid(term.window) then
     local persist_size = require("toggleterm.config").get("persist_size")
     if persist_size then
-      M.save_window_size(term.direction, term.window)
+      M.save_window_size(term:get_direction(), term.window)
     end
     api.nvim_win_close(term.window, true)
   end
@@ -342,11 +343,12 @@ end
 ---@param term Terminal
 ---@param size number
 function M.resize_split(term, size)
-  size = M._resolve_size(M.get_size(size, term.direction), term)
+  local direction = term:get_direction()
+  size = M._resolve_size(M.get_size(size, direction), term)
   if require("toggleterm.config").get("persist_size") then
-    M.save_direction_size(term.direction, size)
+    M.save_direction_size(direction, size)
   end
-  vim.cmd(split_commands[term.direction].resize .. " " .. size)
+  vim.cmd(split_commands[direction].resize .. " " .. size)
 end
 
 ---Determine if a window is a float

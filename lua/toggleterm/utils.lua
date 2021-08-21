@@ -47,4 +47,17 @@ function M.git_dir()
   return vim.trim(gitdir)
 end
 
+---@private
+---Calculate auto direction based on window size
+function M.auto_direction()
+  local c, l = vim.o.columns, vim.o.lines
+  local ratio = (c * 2)/(l * 5)
+
+  if c < 100 and l < 24 then -- small window
+    return "window"
+  end
+
+  return ratio < 1 and "horizontal" or "vertical"
+end
+
 return M

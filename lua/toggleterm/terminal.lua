@@ -162,7 +162,8 @@ function Terminal:is_float()
 end
 
 function Terminal:is_split()
-  return (self.direction == "vertical" or self.direction == "horizontal")
+  local direction = self:get_direction()
+  return (direction == "vertical" or direction == "horizontal")
     and not ui.is_float(self.window)
 end
 
@@ -241,6 +242,15 @@ function Terminal:change_direction(direction)
   self.window = nil
 end
 
+---Get the direction for the terminal
+function Terminal:get_direction()
+  if self.direction == "auto" then
+    return utils.auto_direction()
+  end
+
+  return self.direction
+end
+
 --- Handle when a terminal process exits
 ---@param term Terminal
 local function __handle_exit(term)
@@ -294,7 +304,7 @@ end
 ---@param size number
 ---@param term table
 local function opener(size, term)
-  local direction = term.direction
+  local direction = term:get_direction()
   if term:is_split() then
     ui.open_split(size, term)
   elseif direction == "window" then
